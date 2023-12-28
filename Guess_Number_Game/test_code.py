@@ -1,4 +1,5 @@
 import threading
+
 import pygame, sys
 from button import Button
 import random
@@ -46,29 +47,29 @@ def draw_text(text, x, y, color=BLACK):
 
 
 def get_font(size):
+
     return pygame.font.Font(r"C:\Users\ngllv\.vscode-cli\pygameguessnumber\Guess_Number_Game\assets\font.ttf", size)
 
 
 def play():
+    
     SCREEN.fill(WHITE)
-    text = ""
     nums = random.randrange(1000, 10000)
-
-    max_attempts = 6
-    attempts_left = max_attempts
-
-    while attempts_left > 0:
-
+    user_input_text = ""
+    
+    while True:
+        #SCREEN.fill(WHITE)
         draw_text("Enter your guess:", 50, 200, BLACK)
-
-        draw_text(text, 50, 250, BLACK)
+        draw_text(user_input_text, 50, 250, BLACK)
 
         PLAY_MOUSE_POS = pygame.mouse.get_pos()
 
         PLAY_BACK = Button(image=None, pos=(640, 680),text_input="BACK", font=get_font(30), base_color="black", hovering_color="Green")
-        PLAY_BACK.changeColor(PLAY_MOUSE_POS)        
+
+        PLAY_BACK.changeColor(PLAY_MOUSE_POS)
         PLAY_BACK.update(SCREEN)
-        
+
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -78,81 +79,73 @@ def play():
                     main_menu()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    
-                    SCREEN.fill(WHITE)
+                    n = int(user_input_text)
+                    if n == nums:
+                        draw_text("Excellent! You won in the first try!", 100, 300, BLACK)
+                    else:
+                        tried = 0
+                        while n != nums:
+                            count = 0
+                            tried += 1
+                            n = str(n)
+                            nums = str(nums)
+                            result = []
+                            for i in range(0, 4):
+                                if n[i] == nums[i]:
+                                    count += 1
+                                    result.append(n[i])
+                                else:
+                                    continue
+                            if count < 4 and count != 0:
+                                correct_position = count_digits_at_right_position(nums, n)
+                                wrong_position = count_digits_at_wrong_position(nums, n)
 
-                    n = int(text)
-                    try:
+                                # Display results
+                                draw_text(f"Correct number - Correct position : {correct_position}", 150, 250, BLACK)
+                                draw_text(f"Correct number - Wrong position : {wrong_position}", 150, 350, BLACK)
+
+                                n = int(user_input_text)
+
+                            elif count == 0:
+                                draw_text("None of the numbers match the result. Try again", 300, 550, BLACK)
+                                  
+                                n = int(user_input_text)
+                                
                         if n == nums:
-                            draw_text("Excellent! You won in the first try!", 100, 300, BLACK)
-                        else:
-                            tried = 0
-                            while n != nums:
-                                count = 0
-                                tried += 1
-                                n = str(n)
-                                nums = str(nums)
-                                result = []
-                                for i in range(0, 4):
-                                    if n[i] == nums[i]:
-                                        count += 1
-                                        result.append(n[i])
-                                    else:
-                                        continue
-                                if count < 4 and count != 0:
-                                    correct_position = count_digits_at_right_position(nums, n)
-                                    wrong_position = count_digits_at_wrong_position(nums, n)
+        
+                            draw_text("Congratulations! You got the correct number !", 300, 600, BLACK)
+        
+                            draw_text(f"You've tried {tried} times to win", 300, 650, BLACK)
 
-                                    # Display results
-                                    draw_text("Correct number - Correct position :", 50,300 )
-                                    draw_text(str(correct_position), 50, 350)  # Specify X and Y coordinates
-                                    draw_text("Correct number - Wrong position :", 50, 400)
-                                    draw_text(str(wrong_position), 50, 450)  # Specify X and Y coordinates
-
-                                    n = int(text)
-                                    
-                                elif count == 0:
-                                    draw_text("None of the numbers match the result. Try again", 400, 600, BLACK)
-                                    n = int(text)
-
-                                    # Reset text
-                                text = ""
-
-                    except ValueError:
-                        # Handle the ValueError if conversion to int fails
-                        draw_text("Almost there. Keep Moving! .", 500, 550, BLACK)
-
-                    text = ""
-                    attempts_left -= 1
+                    
                 if event.key == pygame.K_BACKSPACE:
-                    SCREEN.fill(WHITE)
-                    text = text[:-1]
+                    user_input_text = user_input_text[:-1]
                 else:
-
-                    text += event.unicode
-
+                    user_input_text += event.unicode
 
 
             pygame.display.update()
             pygame.display.flip()
-            pygame.time.Clock().tick(30)
+
 
 
 def options():
-    text1 = font.render("Machine will generate a random number", True, BLACK)
-    text2 = font.render("Yor mission is try to find the number given by the machine", True, BLACK)
-    text3 = font.render("Each time you enter the number , you'll got hint", True, BLACK)
-    text4 = font.render("The player with the fewest attempts will be the winner", True, BLACK)
+    text1 = "Machine will generate a random number"
+    text2 = "Yor mission is try to find the number given by the machine"
+    text3 = "Each time you enter the number , you'll got hint"
+    text4 = "The player with the fewest attempts will be the winner"
+    lines = text1.split('\n'), text2.split('\n'), text3.split('\n'), text4.split('\n')
     while True:
         OPTIONS_MOUSE_POS = pygame.mouse.get_pos()
+
         SCREEN.fill("white")
+        for i, line in enumerate(lines):
+            OPTIONS_TEXT = get_font(20).render(line, True, "Black")
+            OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(640, 260))
 
-        SCREEN.blit(text1, (300, 100))  # Blit the first line at (100, 100)
-        SCREEN.blit(text2, (300, 150))  # Blit the second line at (100, 150)
-        SCREEN.blit(text3, (300, 200))  # Blit the third line at (100, 200)
-        SCREEN.blit(text4, (300, 250))  # Blit the third line at (100, 200)
+            SCREEN.blit(OPTIONS_TEXT, OPTIONS_RECT)
 
-        OPTIONS_BACK = Button(image=None, pos=(640, 600), text_input="BACK", font=get_font(30), base_color="Black",
+        OPTIONS_BACK = Button(image=None, pos=(640, 460), text_input="BACK", font=get_font(30), base_color="Black",
                               hovering_color="Green")
 
         OPTIONS_BACK.changeColor(OPTIONS_MOUSE_POS)
@@ -163,11 +156,13 @@ def options():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-
                 if OPTIONS_BACK.checkForInput(OPTIONS_MOUSE_POS):
                     main_menu()
 
         pygame.display.update()
+
+
+
 
 
 def main_menu():
@@ -178,6 +173,8 @@ def main_menu():
         music_thread = threading.Thread(target=play_music())
 
         music_thread.start()
+
+
 
         SCREEN.blit(BG, (0, 0))
 
@@ -214,5 +211,8 @@ def main_menu():
 
         pygame.display.update()
 
+
+
 main_menu()
 pygame.quit()
+
